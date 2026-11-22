@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>বাংলা সংবাদ শ্রেণিবিন্যাস</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%237c3aed%22/><text x=%2216%22 y=%2223%22 font-size=%2218%22 text-anchor=%22middle%22 fill=%22white%22>অ</text></svg>">
+<style>
+  :root { --ink: #1f1a33; --muted: #6b6585; --line: #e9e4f5; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink);
+    font-family: "Noto Sans Bengali", "Hind Siliguri", "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(circle at 10% 0%, #fde68a55, transparent 40%),
+                radial-gradient(circle at 90% 10%, #c4b5fd66, transparent 40%),
+                radial-gradient(circle at 50% 100%, #99f6e455, transparent 45%), #faf8ff;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 20px 60px; }
+  h1 { margin: 0; font-size: 34px; }
+  h1 .grad { background: linear-gradient(90deg, #7c3aed, #db2777, #f59e0b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { color: var(--muted); margin: 6px 0 24px; }
+  .grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: #fff; border-radius: 20px; padding: 22px; box-shadow: 0 10px 40px rgba(76, 29, 149, .08); border: 1px solid var(--line); }
+  textarea { width: 100%; min-height: 230px; resize: vertical; padding: 14px; font: inherit; font-size: 16px; line-height: 1.7; border: 1.5px solid var(--line); border-radius: 14px; outline: none; }
+  textarea:focus { border-color: #8b5cf6; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .btn { border: 0; border-radius: 12px; padding: 12px 20px; font: inherit; font-weight: 700; color: #fff; cursor: pointer; background: linear-gradient(90deg, #7c3aed, #db2777); box-shadow: 0 6px 18px rgba(219, 39, 119, .25); }
+  .btn:disabled { opacity: .5; cursor: wait; }
+  .chip { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 7px 13px; font: inherit; font-size: 13px; cursor: pointer; }
+  .chip:hover { background: #f5f0ff; border-color: #c4b5fd; }
+  .label { font-size: 13px; color: var(--muted); }
+  .result-head { display: flex; align-items: center; gap: 14px; }
+  .badge { font-size: 26px; font-weight: 800; color: #fff; padding: 10px 18px; border-radius: 14px; }
+  .conf { font-size: 14px; color: var(--muted); }
+  .bars { margin-top: 18px; display: grid; gap: 10px; }
+  .bar { display: grid; grid-template-columns: 110px 1fr 52px; gap: 10px; align-items: center; font-size: 14px; }
+  .track { height: 12px; background: #f1edf9; border-radius: 99px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 99px; transition: width .6s ease; }
+  .kw { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .kw span { padding: 6px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; }
+  .empty { color: var(--muted); text-align: center; padding: 50px 10px; }
+  .err { background: #fdecef; color: #b4123d; padding: 10px 12px; border-radius: 10px; margin-top: 10px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 22px; }
+  .stat { border-radius: 16px; padding: 16px; color: #fff; }
+  .stat b { display: block; font-size: 26px; }
+  .s1 { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+  .s2 { background: linear-gradient(135deg, #db2777, #f43f5e); }
+  .s3 { background: linear-gradient(135deg, #0891b2, #14b8a6); }
+  .footer { margin-top: 26px; font-size: 13px; color: var(--muted); }
+  .footer a { color: #7c3aed; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="emoji">📰</span> <span class="grad">বাংলা সংবাদ শ্রেণিবিন্যাস</span></h1>
+  <p class="sub">Bangla News Classifier · Paste a Bangla news article and the model will tell you its topic and why.</p>
+
+  <div class="grid">
+    <div class="card">
+      <textarea id="text" placeholder="এখানে একটি বাংলা সংবাদ লিখুন বা পেস্ট করুন…"></textarea>
+      <div class="row">
+        <button class="btn" id="go">শ্রেণি নির্ণয় করুন</button>
+        <span class="label">উদাহরণ:</span>
+        <button class="chip" data-ex="0">⚽ খেলা</button>
+        <button class="chip" data-ex="1">🎬 বিনোদন</button>
+        <button class="chip" data-ex="2">🌍 আন্তর্জাতিক</button>
+        <button class="chip" data-ex="3">🏛️ জাতীয়</button>
+      </div>
+      <div id="error"></div>
+    </div>
+
+    <div class="card" id="result">
+      <div class="empty">ফলাফল এখানে দেখা যাবে</div>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <p class="footer">Model details: <a href="/model">/model</a> · API docs: <a href="/docs">/docs</a> · Charts: <a href="/reports/model_comparison.png">model comparison</a>, <a href="/reports/confusion_matrix.png">confusion matrix</a></p>
+</div>
+
+<script>
+const COLORS = {
+  sports: "#16a34a", entertainment: "#db2777", international: "#2563eb",
+  national: "#ea580c", state: "#7c3aed", kolkata: "#0891b2",
+};
+const BN = { sports: "খেলা", entertainment: "বিনোদন", international: "আন্তর্জাতিক", national: "জাতীয়", state: "রাজ্য", kolkata: "কলকাতা" };
+const EXAMPLES = [
+  "শেষ ওভারের রোমাঞ্চকর ম্যাচে ছয় উইকেটে জিতল দল। অধিনায়কের অপরাজিত সেঞ্চুরিতে ভর করে সিরিজে এগিয়ে গেল তারা। কোচ জানালেন, পরের টেস্টের জন্য দলে কোনো পরিবর্তন হবে না।",
+  "নতুন ছবির শুটিং শুরু করলেন জনপ্রিয় অভিনেত্রী। পরিচালক জানিয়েছেন, ছবিটি আগামী পুজোয় মুক্তি পাবে। ছবির গানগুলো ইতিমধ্যেই দর্শকদের মন জয় করেছে।",
+  "মার্কিন প্রেসিডেন্ট ও চীনের প্রেসিডেন্টের মধ্যে বৈঠকে বাণিজ্য চুক্তি নিয়ে আলোচনা হয়েছে। জাতিসংঘের মহাসচিব এই উদ্যোগকে স্বাগত জানিয়েছেন।",
+  "লোকসভা নির্বাচনের আগে প্রধানমন্ত্রী নতুন প্রকল্পের ঘোষণা করলেন। কেন্দ্রীয় সরকার জানিয়েছে, দেশের সব রাজ্যে এই প্রকল্প চালু হবে। বিরোধী দল এর সমালোচনা করেছে।",
+];
+
+const $ = (id) => document.getElementById(id);
+
+document.querySelectorAll("[data-ex]").forEach((b) =>
+  b.addEventListener("click", () => { $("text").value = EXAMPLES[b.dataset.ex]; classify(); })
+);
+$("go").addEventListener("click", classify);
+
+async function classify() {
+  const text = $("text").value.trim();
+  $("error").innerHTML = "";
+  if (text.length < 10) { $("error").innerHTML = '<div class="err">অন্তত একটি বাক্য লিখুন।</div>'; return; }
+  $("go").disabled = true;
+  try {
+    const res = await fetch("/predict", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Error");
+    render(data);
+  } catch (e) {
+    $("error").innerHTML = `<div class="err">${e.message}</div>`;
+  } finally {
+    $("go").disabled = false;
+  }
+}
+
+function render(d) {
+  const color = COLORS[d.label] || "#7c3aed";
+  const bars = Object.entries(d.probabilities).map(([c, p]) => `
+    <div class="bar">
+      <span>${BN[c] || c}</span>
+      <div class="track"><div class="fill" style="width:0;background:${COLORS[c]}" data-w="${(p * 100).toFixed(1)}"></div></div>
+      <span>${(p * 100).toFixed(1)}%</span>
+    </div>`).join("");
+  const kws = d.keywords.map((k) => `<span style="background:${color}1a;color:${color}">${k}</span>`).join("") || '<span class="label">—</span>';
+  $("result").innerHTML = `
+    <div class="result-head">
+      <div class="badge" style="background:${color}">${d.label_bn}</div>
+      <div><div style="font-weight:700">${d.label}</div><div class="conf">নিশ্চয়তা ${(d.confidence * 100).toFixed(1)}%</div></div>
+    </div>
+    <div class="bars">${bars}</div>
+    <p class="label" style="margin:20px 0 0">যে শব্দগুলো সিদ্ধান্তে সবচেয়ে বেশি ভূমিকা রেখেছে</p>
+    <div class="kw">${kws}</div>`;
+  requestAnimationFrame(() => document.querySelectorAll(".fill").forEach((f) => (f.style.width = f.dataset.w + "%")));
+}
+
+fetch("/model").then((r) => r.json()).then((m) => {
+  $("stats").innerHTML = `
+    <div class="stat s1"><b>${(m.test.test_accuracy * 100).toFixed(1)}%</b>Test accuracy</div>
+    <div class="stat s2"><b>${m.test.test_macro_f1.toFixed(3)}</b>Macro F1</div>
+    <div class="stat s3"><b>${m.classes.length}</b>Topics</div>`;
+});
+</script>
+</body>
+</html>
